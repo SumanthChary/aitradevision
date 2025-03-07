@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { TrendingUp, TrendingDown, Bitcoin, ChartCandlestick, DollarSign, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, Bitcoin, ChartCandlestick, DollarSign, Zap, Trophy } from 'lucide-react';
 
 const marketData = [
   { 
@@ -113,7 +112,6 @@ const MarketInsights: React.FC = () => {
           </div>
         </div>
         
-        {/* Recent Predictions and Top Traders */}
         <div className="grid md:grid-cols-2 gap-6 mt-10">
           <div className="glassmorphism rounded-xl p-6 animate-fade-in delay-300">
             <h3 className="text-lg font-medium mb-4 flex items-center">
