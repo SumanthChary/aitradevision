@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Heading, Card, CardContent } from '@/components/ui';
+import { Card, CardContent } from '@/components/ui/card';
 import ImageUploader from '@/components/ImageUploader';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -66,13 +66,16 @@ const ChartAnalysis: React.FC = () => {
     setIsSaving(true);
     
     try {
+      // Convert the analysis object to a valid format for Supabase
+      const analysisJson = JSON.parse(JSON.stringify(analysis));
+      
       const { error } = await supabase
         .from('trading_analyses')
         .insert({
           user_id: user.id,
           title: analysisTitle || 'Chart Analysis',
           chart_image: image,
-          result: analysis
+          result: analysisJson
         });
       
       if (error) {

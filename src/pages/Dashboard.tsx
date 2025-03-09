@@ -5,9 +5,37 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, LineChart, AreaChart } from '@/components/ui/chart';
 import { BarChart3, LineChart as LineChartIcon, TrendingUp, Activity, Image, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+
+// Create custom chart components since we don't have access to the ones imported previously
+const AreaChart = ({ data, className }: { data: any[], className?: string }) => (
+  <div className={`${className} flex items-end justify-between`}>
+    {data.map((item, index) => (
+      <div key={index} className="flex flex-col items-center">
+        <div 
+          className="bg-primary/80 w-8 rounded-t-md" 
+          style={{ height: `${(item.value / 4000) * 100}%` }}
+        ></div>
+        <span className="text-xs mt-1">{item.name}</span>
+      </div>
+    ))}
+  </div>
+);
+
+const BarChart = ({ data, className }: { data: any[], className?: string }) => (
+  <div className={`${className} flex items-end justify-between`}>
+    {data.map((item, index) => (
+      <div key={index} className="flex flex-col items-center">
+        <div 
+          className="bg-primary/80 w-8 rounded-t-md" 
+          style={{ height: `${item.value}%` }}
+        ></div>
+        <span className="text-xs mt-1">{item.name}</span>
+      </div>
+    ))}
+  </div>
+);
 
 const Dashboard: React.FC = () => {
   const { user, loading } = useAuth();
@@ -113,10 +141,6 @@ const Dashboard: React.FC = () => {
                   { name: 'May', value: 4000 },
                   { name: 'Jun', value: 3800 },
                 ]}
-                index="name"
-                categories={['value']}
-                colors={['#3b82f6']}
-                valueFormatter={(value: number) => `${value}`}
                 className="h-72"
               />
             </CardContent>
@@ -134,10 +158,6 @@ const Dashboard: React.FC = () => {
                   { name: 'Stocks', value: 15 },
                   { name: 'Commodities', value: 10 },
                 ]}
-                index="name"
-                categories={['value']}
-                colors={['#3b82f6']}
-                valueFormatter={(value: number) => `${value}%`}
                 className="h-72"
               />
             </CardContent>
