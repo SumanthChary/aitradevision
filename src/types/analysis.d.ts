@@ -18,3 +18,15 @@ declare module '@/utils/analyzeImage' {
 
   export function analyzeChartImage(image: string): Promise<AnalysisResult>;
 }
+
+// Add prop types for AnalysisResults component
+declare module '@/components/AnalysisResults' {
+  import { AnalysisResult } from '@/utils/analyzeImage';
+  
+  export interface AnalysisResultsProps {
+    analysis: AnalysisResult;
+  }
+  
+  const AnalysisResults: React.FC<AnalysisResultsProps>;
+  export default AnalysisResults;
+}

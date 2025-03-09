@@ -10,6 +10,7 @@ import { BarChart3 } from 'lucide-react';
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,7 +44,7 @@ const SignUp: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await signUp(email, password);
+      const { error } = await signUp(email, password, username);
       if (!error) {
         // Successful signup handling is done in AuthContext
       }
@@ -76,6 +77,19 @@ const SignUp: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="username" className="text-sm font-medium">
+                Username
+              </label>
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="johndoe"
                 required
               />
             </div>

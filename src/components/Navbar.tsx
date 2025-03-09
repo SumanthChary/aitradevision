@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { BarChart3, Menu, X, LogIn, User } from 'lucide-react';
+import { BarChart3, Menu, X, LogIn } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   DropdownMenu,
@@ -21,8 +21,9 @@ const Navbar: React.FC = () => {
 
   const navigation = [
     { name: 'Home', href: '/' },
-    { name: 'Chart Analysis', href: '/chart-analysis' },
-    { name: 'Trading Assistant', href: '/trading-assistant' },
+    { name: 'How it works', href: '/#how-it-works' },
+    { name: 'Features', href: '/#features' },
+    { name: 'Pricing', href: '/#pricing' },
   ];
 
   useEffect(() => {
@@ -50,7 +51,7 @@ const Navbar: React.FC = () => {
           <div className="flex">
             <Link to="/" className="flex items-center">
               <BarChart3 className="h-8 w-8 text-primary" />
-              <span className="ml-2 text-xl font-semibold">TradeInsight</span>
+              <span className="ml-2 text-xl font-semibold">AITradeVision</span>
             </Link>
           </div>
           
@@ -72,8 +73,8 @@ const Navbar: React.FC = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <User className="h-5 w-5" />
+                  <Button variant="ghost" size="sm">
+                    {user.email?.split('@')[0]}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -81,6 +82,9 @@ const Navbar: React.FC = () => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link to="/dashboard">Dashboard</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/chart-analysis">Chart Analysis</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/settings">Settings</Link>
@@ -91,46 +95,22 @@ const Navbar: React.FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link to="/sign-in">
-                <Button variant="secondary" size="sm">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Sign In
-                </Button>
-              </Link>
+              <>
+                <Link to="/sign-in">
+                  <Button variant="ghost" size="sm">
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/sign-up">
+                  <Button size="sm">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
             )}
           </div>
           
           <div className="flex items-center md:hidden">
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full mr-2">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard">Dashboard</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/settings">Settings</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link to="/sign-in" className="mr-2">
-                <Button variant="secondary" size="sm">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Sign In
-                </Button>
-              </Link>
-            )}
-            
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-md text-foreground hover:bg-white/10"
@@ -163,6 +143,43 @@ const Navbar: React.FC = () => {
                 {item.name}
               </Link>
             ))}
+            {user ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-foreground/80 hover:bg-white/5 hover:text-primary"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    setIsOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-foreground/80 hover:bg-white/5 hover:text-primary"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/sign-in"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-foreground/80 hover:bg-white/5 hover:text-primary"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/sign-up"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-primary hover:bg-white/5"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
