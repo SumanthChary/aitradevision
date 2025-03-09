@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, ChartCandlestick, AlertTriangle, Check, Loader2 } from 'lucide-react';
@@ -7,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ImageUploader from '@/components/ImageUploader';
 import AnalysisResults from '@/components/AnalysisResults';
+import { analyzeChartImage } from '@/utils/analyzeImage';
 
 const ChartAnalysis: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -27,21 +27,8 @@ const ChartAnalysis: React.FC = () => {
     setIsAnalyzing(true);
     
     try {
-      // In a real implementation, this would call the APIs
-      // This is a mock response for demonstration
-      setTimeout(() => {
-        setAnalysisResults({
-          pattern: "Double Bottom",
-          confidence: 87,
-          prediction: "Buy",
-          priceTarget: "$68,500",
-          timeFrame: "24h",
-          supportLevels: ["$62,100", "$61,200"],
-          resistanceLevels: ["$65,400", "$67,800"],
-          analysis: "The double bottom pattern indicates a reversal from the current downtrend. Volume is increasing at the second bottom, confirming pattern validity. RSI shows bullish divergence. Recommendation: Buy with a stop loss at $61,000 and target of $68,500 within 24-48 hours."
-        });
-        setIsAnalyzing(false);
-      }, 3000);
+      const results = await analyzeChartImage(image);
+      setAnalysisResults(results);
     } catch (error) {
       console.error("Error analyzing chart:", error);
       toast({
@@ -49,6 +36,7 @@ const ChartAnalysis: React.FC = () => {
         description: "Could not analyze chart. Please try again.",
         variant: "destructive",
       });
+    } finally {
       setIsAnalyzing(false);
     }
   };

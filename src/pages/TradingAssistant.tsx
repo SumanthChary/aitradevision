@@ -1,11 +1,11 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Bot, User, ChartCandlestick, TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react';
+import { Send, Bot, User, ChartCandlestick, TrendingUp, TrendingDown, AlertTriangle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { askTradingQuestion } from '@/utils/aiTrading';
 
 interface Message {
   id: string;
@@ -53,34 +53,19 @@ const TradingAssistant: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Mock AI response with a timeout
-      // In a real implementation, this would call the AI API
-      setTimeout(() => {
-        // Sample mock responses based on user input keywords
-        let response = "I don't have specific information about that. Could you provide more details?";
-        
-        const userInput = input.toLowerCase();
-        
-        if (userInput.includes('bitcoin') || userInput.includes('btc')) {
-          response = "Bitcoin is currently in a consolidation phase after testing the $63,000 resistance level. The 4-hour chart shows a potential bull flag pattern with a 72% confidence score. If it breaks above $64,500, we could see a move toward $68,000-$70,000 range. However, failure to maintain support at $61,200 could lead to a retest of $58,000.";
-        } else if (userInput.includes('ethereum') || userInput.includes('eth')) {
-          response = "Ethereum's recent upgrade has positively impacted its price action. Technical indicators show a golden cross on the daily chart. Resistance levels are at $3,400 and $3,600, with strong support at $3,100. The ETH/BTC ratio suggests Ethereum might outperform Bitcoin in the next 2-3 weeks.";
-        } else if (userInput.includes('pattern') || userInput.includes('candlestick')) {
-          response = "Common bullish candlestick patterns include: Hammer, Inverted Hammer, Bullish Engulfing, Morning Star, and Three White Soldiers. Bearish patterns include: Hanging Man, Shooting Star, Bearish Engulfing, Evening Star, and Three Black Crows. The reliability of these patterns increases when confirmed by volume and other indicators.";
-        } else if (userInput.includes('strategy') || userInput.includes('strategies')) {
-          response = "Some popular trading strategies include: 1) Trend following with moving averages, 2) Support/resistance breakout trading, 3) RSI divergence for reversals, 4) Volume-price analysis, and 5) Fibonacci retracement levels. Each strategy works best in specific market conditions, so it's important to adapt your approach based on current volatility and trend strength.";
-        }
-        
-        const assistantMessage: Message = {
-          id: Date.now().toString(),
-          content: response,
-          sender: 'assistant',
-          timestamp: new Date(),
-        };
-        
-        setMessages(prev => [...prev, assistantMessage]);
-        setIsLoading(false);
-      }, 2000);
+      // Call our AI trading assistant
+      const response = await askTradingQuestion({
+        question: input
+      });
+      
+      const assistantMessage: Message = {
+        id: Date.now().toString(),
+        content: response.answer,
+        sender: 'assistant',
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -88,6 +73,7 @@ const TradingAssistant: React.FC = () => {
         description: "Failed to get a response. Please try again.",
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };

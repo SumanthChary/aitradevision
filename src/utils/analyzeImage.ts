@@ -1,30 +1,44 @@
 
-// This is a placeholder for the real image analysis functionality
-// In a real application, this would interface with HuggingFace/OpenAI APIs
+import { supabase } from "@/integrations/supabase/client";
 
-export async function analyzeChartImage(imageData: string): Promise<any> {
+export interface AnalysisResult {
+  pattern: string;
+  confidence: number;
+  prediction: string;
+  priceTarget: string;
+  timeFrame: string;
+  supportLevels: string[];
+  resistanceLevels: string[];
+  analysis: string;
+}
+
+export async function analyzeChartImage(imageBase64: string): Promise<AnalysisResult> {
   try {
-    console.log("Analyzing chart image...");
+    console.log("Sending chart image for analysis");
     
-    // In a real implementation, this would call external APIs
-    // For now, we'll return a mock response
+    // Create form data
+    const formData = new FormData();
+    formData.append('image', imageBase64);
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Call our Supabase edge function
+    const { data, error } = await supabase.functions.invoke('chart-analysis', {
+      body: formData
+    });
     
-    // Mock response
-    return {
-      pattern: "Bull Flag",
-      confidence: 89,
-      prediction: "Buy",
-      priceTarget: "$67,200",
-      timeFrame: "48h",
-      supportLevels: ["$62,500", "$61,800"],
-      resistanceLevels: ["$65,200", "$66,800"],
-      analysis: "The bull flag pattern suggests a continuation of the uptrend. Volume is decreasing during the flag formation, which is typical. RSI is neutral at 54, not showing overbought conditions yet. Recommendation: Buy with a stop loss at $61,500 and target of $67,200 within 48 hours."
-    };
+    if (error) {
+      console.error("Edge function error:", error);
+      throw new Error(error.message);
+    }
+    
+    if (!data) {
+      throw new Error("No response data received from the AI service");
+    }
+    
+    console.log("Analysis result:", data);
+    
+    return data as AnalysisResult;
   } catch (error) {
-    console.error("Error analyzing image:", error);
-    throw new Error("Failed to analyze chart image");
+    console.error("Error analyzing chart image:", error);
+    throw new Error("Failed to analyze chart: " + error.message);
   }
 }
