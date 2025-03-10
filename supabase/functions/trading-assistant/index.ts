@@ -31,11 +31,12 @@ serve(async (req) => {
     console.log("Processing trading question:", message);
     
     // Create a simpler prompt for better results
-    const prompt = `As an expert trading advisor, please analyze this question: ${message}`;
+    const prompt = `You are a trading expert. The user is asking: ${message}. Provide concise, helpful financial advice.`;
     
     console.log("Sending prompt to Gemini API:", prompt);
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+    // Make sure we're using the correct model endpoint - gemini-1.5-flash instead of gemini-pro
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

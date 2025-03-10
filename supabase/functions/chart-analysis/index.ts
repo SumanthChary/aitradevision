@@ -39,8 +39,8 @@ serve(async (req) => {
 
     console.log("Preparing Gemini API request");
     
-    // Call Gemini API with the image using a simpler prompt
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${apiKey}`, {
+    // Updated to use gemini-1.5-flash-vision model which supports images
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-vision:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
