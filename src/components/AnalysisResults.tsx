@@ -5,7 +5,7 @@ import { AnalysisResult } from '@/utils/analyzeImage';
 
 export interface AnalysisResultsProps {
   analysis: AnalysisResult;
-  image: string | null;
+  image?: string | null; // Make image optional since it's not always needed
 }
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analysis, image }) => {

@@ -9,10 +9,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface RequestBody {
-  message: string;
-}
-
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -20,7 +16,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message } = await req.json() as RequestBody;
+    const { message } = await req.json() as { message: string };
     
     if (!message) {
       return new Response(
@@ -34,7 +30,7 @@ serve(async (req) => {
 
     console.log("Processing trading question:", message);
     
-    // Create system context for financial analysis with focus on pump/dump predictions
+    // Create system context for financial analysis
     const systemContext = `You are an AI Trading Assistant specialized in financial markets, trading strategies, and technical analysis. 
     Provide professional, data-driven insights about trading, market trends, and investment strategies.
     
@@ -54,7 +50,7 @@ serve(async (req) => {
     Use a confident, analytical tone. Format your responses with bullet points and clear sections.`;
 
     // Call Gemini API
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -78,21 +74,13 @@ serve(async (req) => {
     });
 
     const data = await response.json();
-    console.log("Gemini API response received", JSON.stringify(data));
+    console.log("Gemini API response received");
 
-    // Extract the response text from Gemini API
-    let content = "I couldn't generate a response. Please try again.";
-    
-    if (data.candidates && 
-        data.candidates[0] && 
-        data.candidates[0].content && 
-        data.candidates[0].content.parts && 
-        data.candidates[0].content.parts[0] && 
-        data.candidates[0].content.parts[0].text) {
-      content = data.candidates[0].content.parts[0].text;
-    } else {
-      console.error("Error in Gemini API response:", JSON.stringify(data));
+    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+      throw new Error("Invalid response from Gemini API");
     }
+
+    const content = data.candidates[0].content.parts[0].text;
 
     return new Response(
       JSON.stringify({ content }),
