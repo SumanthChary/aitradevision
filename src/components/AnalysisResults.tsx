@@ -3,7 +3,7 @@ import React from 'react';
 import { ChartCandlestick, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { AnalysisResult } from '@/utils/analyzeImage';
 
-interface AnalysisResultsProps {
+export interface AnalysisResultsProps {
   results: AnalysisResult;
   image?: string | null;
 }
