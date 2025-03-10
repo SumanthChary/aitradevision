@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { SendHorizontal, BarChart3, User, Sparkles } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
-import { askTradingQuestion, TradingResponse } from '@/utils/aiTrading';
+import { askTradingQuestion } from '@/utils/aiTrading';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,29 +16,28 @@ interface Message {
   timestamp: Date;
 }
 
-const SUGGESTED_PROMPTS = [
-  "What's the current market trend for Bitcoin?",
-  "Explain what a pump and dump scheme is",
-  "How to identify potential breakout patterns?",
-  "What's your outlook on tech stocks this quarter?",
-  "Explain the support and resistance levels concept",
-  "How can I identify market manipulation?",
-];
-
 const TradingAssistant: React.FC = () => {
+  const { user, loading } = useAuth();
+  const { toast } = useToast();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: 'Hello! I\'m your AI trading assistant. Ask me about market trends, trading strategies, or specific assets. I can help identify potential pumps, dumps, or holds.',
+      content: 'Hello! I\'m your AI trading assistant. Ask me about market trends, trading strategies, or specific assets.',
       isUser: false,
       timestamp: new Date(),
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { user, loading } = useAuth();
-  const { toast } = useToast();
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
   
   // If still checking auth status, show loading
   if (loading) {
@@ -54,14 +52,6 @@ const TradingAssistant: React.FC = () => {
   if (!user && !loading) {
     return <Navigate to="/sign-in" />;
   }
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -134,7 +134,7 @@ const ChartAnalysis: React.FC = () => {
                   isSaving={isSaving}
                 />
                 <AnalysisResults 
-                  results={analysis}
+                  analysis={analysis}
                   image={image}
                 />
               </div>
