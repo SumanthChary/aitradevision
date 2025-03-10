@@ -30,6 +30,11 @@ serve(async (req) => {
 
     console.log("Processing trading question:", message);
     
+    // Create a simpler prompt for better results
+    const prompt = `As an expert trading advisor, please analyze this question: ${message}`;
+    
+    console.log("Sending prompt to Gemini API:", prompt);
+    
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
@@ -38,35 +43,38 @@ serve(async (req) => {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `You are an AI Trading Assistant specialized in financial markets and trading analysis. 
-            Analyze the following trading-related question and provide professional insights: ${message}`
+            text: prompt
           }]
         }],
         generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.8,
+          temperature: 0.4,
+          topK: 32,
+          topP: 0.95,
           maxOutputTokens: 800,
         }
       })
     });
 
+    // Log the raw response for debugging
+    console.log("Gemini API status:", response.status);
+    
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error("Gemini API error response:", errorData);
-      throw new Error(`Gemini API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error("Gemini API error response:", errorText);
+      throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log("Gemini API response data:", JSON.stringify(data));
-
+    console.log("Gemini API response received");
+    
     // Check if we have the expected response structure
-    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      console.error("Unexpected API response structure:", data);
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0] || !data.candidates[0].content.parts[0].text) {
+      console.error("Unexpected API response structure:", JSON.stringify(data));
       throw new Error("Invalid response structure from Gemini API");
     }
 
     const content = data.candidates[0].content.parts[0].text;
+    console.log("Successfully extracted content from Gemini response");
 
     return new Response(
       JSON.stringify({ content }),
