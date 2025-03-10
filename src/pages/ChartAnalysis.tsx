@@ -36,7 +36,14 @@ const ChartAnalysis: React.FC = () => {
   }
 
   const handleAnalyze = async () => {
-    if (!image) return;
+    if (!image) {
+      toast({
+        title: "No image selected",
+        description: "Please upload a chart image first",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsAnalyzing(true);
     
@@ -48,6 +55,12 @@ const ChartAnalysis: React.FC = () => {
       if (result.pattern) {
         setAnalysisTitle(`${result.pattern} Pattern Analysis`);
       }
+      
+      toast({
+        title: "Analysis complete",
+        description: `Identified ${result.pattern} pattern with ${result.confidence}% confidence`,
+      });
+      
     } catch (error: any) {
       console.error('Analysis error:', error);
       toast({
@@ -107,7 +120,7 @@ const ChartAnalysis: React.FC = () => {
   return (
     <DashboardLayout>
       <div className="container mx-auto max-w-5xl px-4 py-8">
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in">
           <h1 className="text-3xl font-bold mb-2">Chart Analysis</h1>
           <p className="text-muted-foreground">Upload any trading chart and let our AI identify patterns and provide insights</p>
         </div>
@@ -118,7 +131,7 @@ const ChartAnalysis: React.FC = () => {
             <TabsTrigger value="results" disabled={!analysis}>Analysis Results</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="upload" className="space-y-6">
+          <TabsContent value="upload" className="space-y-6 animate-fade-in">
             <Card>
               <CardContent className="pt-6">
                 <ImageUploader 
@@ -130,7 +143,7 @@ const ChartAnalysis: React.FC = () => {
                   <Button 
                     onClick={handleAnalyze} 
                     disabled={!image || isAnalyzing}
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto hover-scale"
                   >
                     {isAnalyzing ? (
                       <>
@@ -146,7 +159,7 @@ const ChartAnalysis: React.FC = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="results">
+          <TabsContent value="results" className="animate-fade-in">
             {analysis && (
               <div className="space-y-6">
                 <Card>
@@ -166,7 +179,7 @@ const ChartAnalysis: React.FC = () => {
                         <Button
                           onClick={saveAnalysis}
                           disabled={isSaving}
-                          className="mt-2"
+                          className="mt-2 hover-scale"
                         >
                           {isSaving ? "Saving..." : "Save Analysis"}
                         </Button>
@@ -175,7 +188,7 @@ const ChartAnalysis: React.FC = () => {
                   </CardContent>
                 </Card>
                 
-                <AnalysisResults analysis={analysis} />
+                <AnalysisResults results={analysis} image={image} />
               </div>
             )}
           </TabsContent>

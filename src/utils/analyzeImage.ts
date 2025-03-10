@@ -27,7 +27,7 @@ export async function analyzeChartImage(imageBase64: string): Promise<AnalysisRe
     
     if (error) {
       console.error("Edge function error:", error);
-      throw new Error(error.message);
+      throw new Error(error.message || "Failed to analyze chart");
     }
     
     if (!data) {
@@ -36,9 +36,21 @@ export async function analyzeChartImage(imageBase64: string): Promise<AnalysisRe
     
     console.log("Analysis result:", data);
     
-    return data as AnalysisResult;
-  } catch (error) {
+    // Ensure all required fields are present with defaults if needed
+    const result: AnalysisResult = {
+      pattern: data.pattern || "Unknown Pattern",
+      confidence: data.confidence || 0,
+      prediction: data.prediction || "Neutral",
+      priceTarget: data.priceTarget || "N/A",
+      timeFrame: data.timeFrame || "Short-term",
+      supportLevels: Array.isArray(data.supportLevels) ? data.supportLevels : [],
+      resistanceLevels: Array.isArray(data.resistanceLevels) ? data.resistanceLevels : [],
+      analysis: data.analysis || "No detailed analysis available."
+    };
+    
+    return result;
+  } catch (error: any) {
     console.error("Error analyzing chart image:", error);
-    throw new Error("Failed to analyze chart: " + error.message);
+    throw new Error("Failed to analyze chart: " + (error.message || "Unknown error"));
   }
 }
