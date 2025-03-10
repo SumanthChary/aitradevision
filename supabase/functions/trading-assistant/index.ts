@@ -54,7 +54,7 @@ serve(async (req) => {
     Use a confident, analytical tone. Format your responses with bullet points and clear sections.`;
 
     // Call Gemini API
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -62,11 +62,9 @@ serve(async (req) => {
       body: JSON.stringify({
         contents: [
           {
-            role: "user",
             parts: [{ text: systemContext }]
           },
           {
-            role: "user",
             parts: [{ text: message }]
           }
         ],
@@ -75,30 +73,12 @@ serve(async (req) => {
           topK: 40,
           topP: 0.8,
           maxOutputTokens: 800,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
+        }
       })
     });
 
     const data = await response.json();
-    console.log("Gemini API response received");
+    console.log("Gemini API response received", JSON.stringify(data));
 
     // Extract the response text from Gemini API
     let content = "I couldn't generate a response. Please try again.";
@@ -111,7 +91,7 @@ serve(async (req) => {
         data.candidates[0].content.parts[0].text) {
       content = data.candidates[0].content.parts[0].text;
     } else {
-      console.error("Error in Gemini API response:", data);
+      console.error("Error in Gemini API response:", JSON.stringify(data));
     }
 
     return new Response(

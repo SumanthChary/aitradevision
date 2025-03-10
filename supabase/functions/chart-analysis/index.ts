@@ -32,18 +32,7 @@ serve(async (req) => {
     console.log("Processing chart analysis request");
     
     // Create system context for chart analysis
-    const systemContext = `You are an expert trading chart analyst. Analyze the provided trading chart image and identify patterns, support/resistance levels, and potential price movements. 
-    Structure your response in this format:
-    1. Pattern: [Identified pattern, e.g., Double Bottom, Head and Shoulders, etc.]
-    2. Confidence: [A percentage of confidence in your analysis]
-    3. Prediction: [Buy/Sell/Hold recommendation]
-    4. Price Target: [Potential price target]
-    5. Time Frame: [Expected time for the target to be reached]
-    6. Support Levels: [Key support levels]
-    7. Resistance Levels: [Key resistance levels]
-    8. Analysis: [Detailed analysis with reasoning]
-    
-    Keep your analysis professional and data-driven.`;
+    const systemPrompt = `You are an expert trading chart analyst. Analyze the provided trading chart image and identify patterns, support/resistance levels, and potential price movements.`;
 
     // Extract the image data part from the base64 string
     let imageData = imageBase64;
@@ -61,13 +50,14 @@ serve(async (req) => {
         contents: [
           {
             parts: [
-              { text: systemContext },
+              { text: systemPrompt },
               { 
                 inline_data: {
                   mime_type: "image/jpeg",
                   data: imageData
                 }
-              }
+              },
+              { text: "Structure your response in this exact format, with each item on a new line. Do not deviate from this format:\nPattern: [Name of pattern]\nConfidence: [Percentage]\nPrediction: [Buy/Sell/Hold]\nPrice Target: [Value]\nTime Frame: [Short/Medium/Long-term]\nSupport Levels: [Level1, Level2, Level3]\nResistance Levels: [Level1, Level2, Level3]\nAnalysis: [Your detailed analysis]" }
             ]
           }
         ],
@@ -81,7 +71,7 @@ serve(async (req) => {
     });
 
     const data = await response.json();
-    console.log("Gemini API response received");
+    console.log("Gemini API response received:", JSON.stringify(data));
 
     // Extract the response text from Gemini API and parse it into structured data
     let analysisText = "";
@@ -108,11 +98,11 @@ serve(async (req) => {
     const parseAnalysisText = (text: string) => {
       const lines = text.split('\n');
       const result: Record<string, any> = {
-        pattern: "",
-        confidence: 0,
-        prediction: "",
-        priceTarget: "",
-        timeFrame: "",
+        pattern: "Unknown Pattern",
+        confidence: 70,
+        prediction: "Hold",
+        priceTarget: "N/A",
+        timeFrame: "Short-term",
         supportLevels: [],
         resistanceLevels: [],
         analysis: ""
@@ -128,22 +118,28 @@ serve(async (req) => {
         }
 
         if (line.toLowerCase().includes('pattern:')) {
-          result.pattern = line.split(':')[1]?.trim() || "";
+          result.pattern = line.split(':')[1]?.trim() || "Unknown Pattern";
         } else if (line.toLowerCase().includes('confidence:')) {
           const confStr = line.split(':')[1]?.trim() || "";
-          result.confidence = parseInt(confStr.replace('%', '')) || 0;
+          result.confidence = parseInt(confStr.replace('%', '')) || 70;
         } else if (line.toLowerCase().includes('prediction:')) {
-          result.prediction = line.split(':')[1]?.trim() || "";
+          result.prediction = line.split(':')[1]?.trim() || "Hold";
         } else if (line.toLowerCase().includes('price target:')) {
-          result.priceTarget = line.split(':')[1]?.trim() || "";
+          result.priceTarget = line.split(':')[1]?.trim() || "N/A";
         } else if (line.toLowerCase().includes('time frame:')) {
-          result.timeFrame = line.split(':')[1]?.trim() || "";
+          result.timeFrame = line.split(':')[1]?.trim() || "Short-term";
         } else if (line.toLowerCase().includes('support levels:')) {
           const levelsStr = line.split(':')[1]?.trim() || "";
-          result.supportLevels = levelsStr.split(',').map(s => s.trim());
+          result.supportLevels = levelsStr.split(',').map(s => s.trim()).filter(s => s !== "");
+          if (result.supportLevels.length === 0) {
+            result.supportLevels = ["N/A"];
+          }
         } else if (line.toLowerCase().includes('resistance levels:')) {
           const levelsStr = line.split(':')[1]?.trim() || "";
-          result.resistanceLevels = levelsStr.split(',').map(s => s.trim());
+          result.resistanceLevels = levelsStr.split(',').map(s => s.trim()).filter(s => s !== "");
+          if (result.resistanceLevels.length === 0) {
+            result.resistanceLevels = ["N/A"];
+          }
         } else if (line.toLowerCase().includes('analysis:')) {
           inAnalysisSection = true;
         }
@@ -151,6 +147,8 @@ serve(async (req) => {
 
       if (analysisLines.length > 0) {
         result.analysis = analysisLines.join('\n').trim();
+      } else {
+        result.analysis = "No detailed analysis available.";
       }
 
       return result;

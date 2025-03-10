@@ -1,41 +1,34 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 
-export interface TradingQuestion {
+interface TradingQuestionParams {
   question: string;
-  context?: string;
 }
 
-export interface TradingResponse {
+interface TradingQuestionResponse {
   answer: string;
-  confidence?: number;
-  relatedQuestions?: string[];
 }
 
-export async function askTradingQuestion(params: TradingQuestion): Promise<TradingResponse> {
+export async function askTradingQuestion({ question }: TradingQuestionParams): Promise<TradingQuestionResponse> {
   try {
-    console.log("Processing trading question:", params.question);
+    console.log('Sending trading question:', question);
     
-    // Call our Supabase edge function
     const { data, error } = await supabase.functions.invoke('trading-assistant', {
-      body: { message: params.question }
+      body: { message: question }
     });
     
     if (error) {
-      console.error("Edge function error:", error);
-      throw new Error(error.message || "Failed to get trading insights");
+      console.error('Error invoking trading-assistant function:', error);
+      throw new Error(error.message || 'Failed to get AI response');
     }
     
     if (!data || !data.content) {
-      throw new Error("No response data received from the AI service");
+      throw new Error('No response received from AI service');
     }
     
-    return {
-      answer: data.content,
-      confidence: data.confidence || 0.95, // Default confidence score
-    };
+    return { answer: data.content };
   } catch (error: any) {
-    console.error("Error processing trading question:", error);
-    throw new Error("Failed to get trading insights: " + (error.message || "Unknown error"));
+    console.error('Error in askTradingQuestion:', error);
+    throw new Error(`Failed to process your question: ${error.message}`);
   }
 }
