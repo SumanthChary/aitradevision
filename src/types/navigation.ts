@@ -5,4 +5,5 @@ export interface NavigationItem {
   name: string;
   href: string;
   icon: LucideIcon;
+  badge?: string | number;
 }
