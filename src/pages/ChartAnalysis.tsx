@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AnalysisResults from '@/components/AnalysisResults';
@@ -7,18 +7,21 @@ import AnalysisTitleInput from '@/components/chart-analysis/AnalysisTitleInput';
 import ChartUploader from '@/components/chart-analysis/ChartUploader';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { AnalysisResult } from '@/utils/analyzeImage';
-import { performChartAnalysis, saveAnalysis } from '@/services/chartAnalysisService';
+import { useChartAnalysis } from '@/hooks/useChartAnalysis';
 
 const ChartAnalysis: React.FC = () => {
-  const [image, setImage] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [analysisTitle, setAnalysisTitle] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
   const { user, loading } = useAuth();
-  const { toast } = useToast();
+  const {
+    image,
+    setImage,
+    isAnalyzing,
+    analysis,
+    analysisTitle,
+    setAnalysisTitle,
+    isSaving,
+    handleAnalyze,
+    handleSaveAnalysis
+  } = useChartAnalysis(user?.id);
   
   // If still checking auth status, show loading
   if (loading) {
@@ -33,73 +36,6 @@ const ChartAnalysis: React.FC = () => {
   if (!user && !loading) {
     return <Navigate to="/sign-in" />;
   }
-
-  const handleAnalyze = async () => {
-    if (!image) {
-      toast({
-        title: "No image selected",
-        description: "Please upload a chart image first",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsAnalyzing(true);
-    
-    try {
-      const result = await performChartAnalysis(image);
-      setAnalysis(result);
-      
-      // Generate a default title based on the analysis pattern
-      if (result.pattern) {
-        setAnalysisTitle(`${result.pattern} Pattern Analysis`);
-      }
-      
-      toast({
-        title: "Analysis complete",
-        description: `Identified ${result.pattern} pattern with ${result.confidence}% confidence`,
-      });
-      
-    } catch (error: any) {
-      console.error('Analysis error:', error);
-      toast({
-        title: "Analysis failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-  
-  const handleSaveAnalysis = async () => {
-    if (!user || !analysis || !image) return;
-    
-    setIsSaving(true);
-    
-    try {
-      await saveAnalysis({
-        userId: user.id,
-        title: analysisTitle || 'Chart Analysis',
-        image,
-        analysis
-      });
-      
-      toast({
-        title: "Analysis saved",
-        description: "Your chart analysis has been saved successfully.",
-      });
-    } catch (error: any) {
-      console.error('Error saving analysis:', error);
-      toast({
-        title: "Failed to save analysis",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <DashboardLayout>
