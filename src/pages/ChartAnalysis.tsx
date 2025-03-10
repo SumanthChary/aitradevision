@@ -133,8 +133,10 @@ const ChartAnalysis: React.FC = () => {
                   onSave={handleSaveAnalysis}
                   isSaving={isSaving}
                 />
-                
-                <AnalysisResults results={analysis} image={image} />
+                <AnalysisResults 
+                  results={analysis}
+                  image={image}
+                />
               </div>
             )}
           </TabsContent>

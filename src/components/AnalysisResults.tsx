@@ -3,9 +3,9 @@ import React from 'react';
 import { ChartCandlestick, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { AnalysisResult } from '@/utils/analyzeImage';
 
-export interface AnalysisResultsProps {
+interface AnalysisResultsProps {
   results: AnalysisResult;
-  image?: string | null;
+  image: string | null;
 }
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results, image }) => {
@@ -98,4 +98,5 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results, image }) => 
   );
 };
 
+export type { AnalysisResultsProps };
 export default AnalysisResults;
