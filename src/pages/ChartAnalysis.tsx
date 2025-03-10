@@ -1,16 +1,15 @@
 
 import React, { useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import ImageUploader from '@/components/ImageUploader';
-import { Button } from '@/components/ui/button';
+import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AnalysisResults from '@/components/AnalysisResults';
-import { analyzeChartImage, AnalysisResult } from '@/utils/analyzeImage';
+import AnalysisTitleInput from '@/components/chart-analysis/AnalysisTitleInput';
+import ChartUploader from '@/components/chart-analysis/ChartUploader';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { AnalysisResult } from '@/utils/analyzeImage';
+import { performChartAnalysis, saveAnalysis } from '@/services/chartAnalysisService';
 
 const ChartAnalysis: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -48,7 +47,7 @@ const ChartAnalysis: React.FC = () => {
     setIsAnalyzing(true);
     
     try {
-      const result = await analyzeChartImage(image);
+      const result = await performChartAnalysis(image);
       setAnalysis(result);
       
       // Generate a default title based on the analysis pattern
@@ -73,33 +72,18 @@ const ChartAnalysis: React.FC = () => {
     }
   };
   
-  const saveAnalysis = async () => {
+  const handleSaveAnalysis = async () => {
     if (!user || !analysis || !image) return;
     
     setIsSaving(true);
     
     try {
-      // Convert the analysis object to a valid format for Supabase
-      const analysisJson = JSON.parse(JSON.stringify(analysis));
-      
-      const { error } = await supabase
-        .from('trading_analyses')
-        .insert({
-          user_id: user.id,
-          title: analysisTitle || 'Chart Analysis',
-          chart_image: image,
-          result: analysisJson
-        });
-      
-      if (error) {
-        console.error('Error saving analysis:', error);
-        toast({
-          title: "Failed to save analysis",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
-      }
+      await saveAnalysis({
+        userId: user.id,
+        title: analysisTitle || 'Chart Analysis',
+        image,
+        analysis
+      });
       
       toast({
         title: "Analysis saved",
@@ -132,61 +116,23 @@ const ChartAnalysis: React.FC = () => {
           </TabsList>
           
           <TabsContent value="upload" className="space-y-6 animate-fade-in">
-            <Card>
-              <CardContent className="pt-6">
-                <ImageUploader 
-                  image={image} 
-                  setImage={setImage} 
-                />
-                
-                <div className="mt-6 flex justify-center">
-                  <Button 
-                    onClick={handleAnalyze} 
-                    disabled={!image || isAnalyzing}
-                    className="w-full sm:w-auto hover-scale"
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <span className="animate-spin mr-2">⏳</span>
-                        Analyzing...
-                      </>
-                    ) : (
-                      'Analyze Chart'
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <ChartUploader
+              image={image}
+              setImage={setImage}
+              onAnalyze={handleAnalyze}
+              isAnalyzing={isAnalyzing}
+            />
           </TabsContent>
           
           <TabsContent value="results" className="animate-fade-in">
             {analysis && (
               <div className="space-y-6">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="space-y-4">
-                      <label className="text-sm font-medium">
-                        Analysis Title
-                      </label>
-                      <input
-                        type="text"
-                        value={analysisTitle}
-                        onChange={(e) => setAnalysisTitle(e.target.value)}
-                        placeholder="Enter a title for this analysis"
-                        className="w-full p-2 rounded-md border border-input bg-background"
-                      />
-                      <div className="flex justify-end">
-                        <Button
-                          onClick={saveAnalysis}
-                          disabled={isSaving}
-                          className="mt-2 hover-scale"
-                        >
-                          {isSaving ? "Saving..." : "Save Analysis"}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <AnalysisTitleInput
+                  title={analysisTitle}
+                  onTitleChange={setAnalysisTitle}
+                  onSave={handleSaveAnalysis}
+                  isSaving={isSaving}
+                />
                 
                 <AnalysisResults results={analysis} image={image} />
               </div>
