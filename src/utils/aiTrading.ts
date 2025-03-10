@@ -23,7 +23,7 @@ export async function askTradingQuestion(params: TradingQuestion): Promise<Tradi
     
     if (error) {
       console.error("Edge function error:", error);
-      throw new Error(error.message);
+      throw new Error(error.message || "Failed to get trading insights");
     }
     
     if (!data || !data.content) {
@@ -32,10 +32,10 @@ export async function askTradingQuestion(params: TradingQuestion): Promise<Tradi
     
     return {
       answer: data.content,
-      confidence: 0.95, // Placeholder since Gemini doesn't return confidence scores
+      confidence: data.confidence || 0.95, // Default confidence score
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error processing trading question:", error);
-    throw new Error("Failed to get trading insights: " + error.message);
+    throw new Error("Failed to get trading insights: " + (error.message || "Unknown error"));
   }
 }

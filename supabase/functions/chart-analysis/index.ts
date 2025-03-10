@@ -16,8 +16,8 @@ serve(async (req) => {
   }
 
   try {
-    const formData = await req.formData();
-    const imageBase64 = formData.get('image') as string;
+    const requestData = await req.json();
+    const imageBase64 = requestData.image;
     
     if (!imageBase64) {
       return new Response(
@@ -45,6 +45,12 @@ serve(async (req) => {
     
     Keep your analysis professional and data-driven.`;
 
+    // Extract the image data part from the base64 string
+    let imageData = imageBase64;
+    if (imageBase64.includes(',')) {
+      imageData = imageBase64.split(',')[1];
+    }
+
     // Call Gemini API with the image
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${apiKey}`, {
       method: 'POST',
@@ -59,7 +65,7 @@ serve(async (req) => {
               { 
                 inline_data: {
                   mime_type: "image/jpeg",
-                  data: imageBase64.split(',')[1] // Remove the data:image/jpeg;base64, prefix
+                  data: imageData
                 }
               }
             ]
@@ -88,8 +94,9 @@ serve(async (req) => {
         data.candidates[0].content.parts[0].text) {
       analysisText = data.candidates[0].content.parts[0].text;
     } else {
+      console.error("Failed to generate analysis:", JSON.stringify(data));
       return new Response(
-        JSON.stringify({ error: "Failed to generate analysis from the image" }),
+        JSON.stringify({ error: "Failed to generate analysis from the image", details: data }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -98,7 +105,6 @@ serve(async (req) => {
     }
 
     // Parse the text response into structured data
-    // This is a simple parser and might need adjustments based on actual responses
     const parseAnalysisText = (text: string) => {
       const lines = text.split('\n');
       const result: Record<string, any> = {
@@ -112,7 +118,15 @@ serve(async (req) => {
         analysis: ""
       };
 
+      let inAnalysisSection = false;
+      let analysisLines: string[] = [];
+
       for (const line of lines) {
+        if (inAnalysisSection) {
+          analysisLines.push(line);
+          continue;
+        }
+
         if (line.toLowerCase().includes('pattern:')) {
           result.pattern = line.split(':')[1]?.trim() || "";
         } else if (line.toLowerCase().includes('confidence:')) {
@@ -131,19 +145,19 @@ serve(async (req) => {
           const levelsStr = line.split(':')[1]?.trim() || "";
           result.resistanceLevels = levelsStr.split(',').map(s => s.trim());
         } else if (line.toLowerCase().includes('analysis:')) {
-          const startIndex = lines.indexOf(line);
-          result.analysis = lines.slice(startIndex)
-            .join('\n')
-            .replace('Analysis:', '')
-            .trim();
-          break;
+          inAnalysisSection = true;
         }
+      }
+
+      if (analysisLines.length > 0) {
+        result.analysis = analysisLines.join('\n').trim();
       }
 
       return result;
     };
 
     const analysisResult = parseAnalysisText(analysisText);
+    console.log("Parsed analysis result:", analysisResult);
     
     return new Response(
       JSON.stringify(analysisResult),

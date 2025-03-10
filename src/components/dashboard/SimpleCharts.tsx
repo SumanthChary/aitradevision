@@ -16,12 +16,14 @@ export const AreaChart = ({ data, className }: { data: any[], className?: string
         <span className="text-xs mt-1 opacity-70 group-hover:opacity-100 transition-opacity">{item.name}</span>
       </div>
     ))}
-    <style jsx>{`
+    <style>
+      {`
       @keyframes grow {
         from { height: 0; }
         to { height: ${(data[0].value / 4000) * 100}%; }
       }
-    `}</style>
+      `}
+    </style>
   </div>
 );
 
@@ -42,7 +44,8 @@ export const BarChart = ({ data, className }: { data: any[], className?: string 
         <span className="text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity absolute -top-6">{item.value}%</span>
       </div>
     ))}
-    <style jsx>{`
+    <style>
+      {`
       @keyframes slideUp {
         from { 
           transform: translateY(20px);
@@ -53,11 +56,12 @@ export const BarChart = ({ data, className }: { data: any[], className?: string 
           opacity: 1;
         }
       }
-    `}</style>
+      `}
+    </style>
   </div>
 );
 
-// Animated Line Chart component (new)
+// Animated Line Chart component
 export const LineChart = ({ data, className }: { data: any[], className?: string }) => {
   const maxValue = Math.max(...data.map(item => item.value));
   const points = data.map((item, index) => {
@@ -106,7 +110,8 @@ export const LineChart = ({ data, className }: { data: any[], className?: string
           </div>
         ))}
       </div>
-      <style jsx>{`
+      <style>
+        {`
         @keyframes drawLine {
           to {
             stroke-dashoffset: 0;
@@ -117,12 +122,13 @@ export const LineChart = ({ data, className }: { data: any[], className?: string
             opacity: 1;
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
 
-// Animated Donut Chart component (new)
+// Animated Donut Chart component
 export const DonutChart = ({ data, className }: { data: any[], className?: string }) => {
   const total = data.reduce((sum, item) => sum + item.value, 0);
   let cumulativePercent = 0;
@@ -181,7 +187,8 @@ export const DonutChart = ({ data, className }: { data: any[], className?: strin
         ))}
       </div>
       
-      <style jsx>{`
+      <style>
+        {`
         .donut {
           animation: donutFade 1s ease;
         }
@@ -195,7 +202,8 @@ export const DonutChart = ({ data, className }: { data: any[], className?: strin
             100% { transform: rotate(0); transform-origin: center; }
           }
         `).join('\n')}
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

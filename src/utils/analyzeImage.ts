@@ -16,13 +16,9 @@ export async function analyzeChartImage(imageBase64: string): Promise<AnalysisRe
   try {
     console.log("Sending chart image for analysis");
     
-    // Create form data
-    const formData = new FormData();
-    formData.append('image', imageBase64);
-    
     // Call our Supabase edge function
     const { data, error } = await supabase.functions.invoke('chart-analysis', {
-      body: formData
+      body: { image: imageBase64 }
     });
     
     if (error) {

@@ -34,11 +34,24 @@ serve(async (req) => {
 
     console.log("Processing trading question:", message);
     
-    // Create system context for financial analysis
+    // Create system context for financial analysis with focus on pump/dump predictions
     const systemContext = `You are an AI Trading Assistant specialized in financial markets, trading strategies, and technical analysis. 
-    Provide professional, data-driven insights about trading, market trends, and investment strategies. 
-    Focus on educational content and avoid making specific financial recommendations. 
-    Use a confident, analytical tone.`;
+    Provide professional, data-driven insights about trading, market trends, and investment strategies.
+    
+    Your key specialities include:
+    1. Identifying potential pump and dump schemes
+    2. Analyzing market sentiment
+    3. Providing technical analysis of assets
+    4. Explaining trading concepts
+    5. Suggesting trading strategies
+    
+    When asked about a specific asset or market condition:
+    - Clearly state if you believe it shows signs of being a pump/dump scheme
+    - Explain the reasoning behind your assessment
+    - Provide risk levels (Low, Medium, High)
+    - Suggest caution points for traders
+    
+    Use a confident, analytical tone. Format your responses with bullet points and clear sections.`;
 
     // Call Gemini API
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
@@ -58,7 +71,7 @@ serve(async (req) => {
           }
         ],
         generationConfig: {
-          temperature: 0.2,
+          temperature: 0.3,
           topK: 40,
           topP: 0.8,
           maxOutputTokens: 800,
@@ -85,7 +98,7 @@ serve(async (req) => {
     });
 
     const data = await response.json();
-    console.log("Gemini API response:", JSON.stringify(data));
+    console.log("Gemini API response received");
 
     // Extract the response text from Gemini API
     let content = "I couldn't generate a response. Please try again.";
@@ -97,6 +110,8 @@ serve(async (req) => {
         data.candidates[0].content.parts[0] && 
         data.candidates[0].content.parts[0].text) {
       content = data.candidates[0].content.parts[0].text;
+    } else {
+      console.error("Error in Gemini API response:", data);
     }
 
     return new Response(
