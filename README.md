@@ -1,69 +1,100 @@
-# Welcome to your Lovable project
+# AI Trade Vision
 
-## Project info
+AI Trade Vision is a Web Application built with React, TypeScript, and Vite. It integrates Supabase for backend services and AI-driven features to assist with trading insights and analytics.
 
-**URL**: https://lovable.dev/projects/5b683b5a-b10a-4f7b-87f5-b41d1c2a0f7f
+---
 
-## How can I edit this code?
+## 🛠️ Tech Stack
 
-There are several ways of editing your application.
+* **Frontend:** React, TypeScript, Vite
+* **UI & Styling:** Tailwind CSS, shadcn/ui
+* **Backend & Database:** Supabase
+* **Package Manager:** npm / bun
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5b683b5a-b10a-4f7b-87f5-b41d1c2a0f7f) and start prompting.
+## 🚀 Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+Follow these instructions to get a local copy up and running.
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Ensure you have Node.js (v18+) and npm installed on your machine.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Verify Node installation
+node -v
+npm -v
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Installation & Setup
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. **Clone the repository**
+```bash
+git clone https://github.com/SumanthChary/aitradevision.git
+cd aitradevision
 
-**Use GitHub Codespaces**
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## What technologies are used for this project?
+2. **Install dependencies**
+```bash
+npm install
 
-This project is built with .
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
 
-## How can I deploy this project?
+3. **Set up environment variables**
+Create a `.env` file in the root directory and add your Supabase credentials:
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-Simply open [Lovable](https://lovable.dev/projects/5b683b5a-b10a-4f7b-87f5-b41d1c2a0f7f) and click on Share -> Publish.
+```
 
-## I want to use a custom domain - is that possible?
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+4. **Run the development server**
+```bash
+npm run dev
+
+```
+
+
+Open your browser and navigate to `http://localhost:5173`.
+
+---
+
+## 📁 Project Structure
+
+```text
+aitradevision/
+├── public/          # Static assets
+├── src/             # Application source code
+│   ├── components/  # React components & UI primitives
+│   ├── hooks/       # Custom React hooks
+│   ├── pages/       # Route pages
+│   └── lib/         # Utility functions & Supabase client setup
+├── supabase/        # Database migrations & edge functions
+├── index.html       # HTML entry point
+├── package.json     # Project dependencies and scripts
+└── vite.config.ts   # Vite configuration
+
+```
+
+---
+
+## 📜 Available Scripts
+
+In the project directory, you can run:
+
+* `npm run dev`: Runs the app in development mode with HMR.
+* `npm run build`: Builds the app for production to the `dist` folder.
+* `npm run preview`: Locally preview the production build.
+* `npm run lint`: Runs ESLint to check for code formatting issues.
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
